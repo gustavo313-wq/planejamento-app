@@ -1,0 +1,594 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nossa casa — lista de essenciais</title>
+<meta name="description" content="Lista de essenciais para morar a dois, com checklist, quantidades, valores e observações editáveis.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏠</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#EEF1F5;
+  --surface:#FFFFFF;
+  --ink:#1B2540;
+  --muted:#5E6A85;
+  --line:#D5DBE6;
+  --tape:#F2C230;
+  --tape-ink:#2A2200;
+  --done:#2E7D5B;
+  --danger:#B3402F;
+  --focus:#3B5BDB;
+  --radius:10px;
+  --font-display:"Bricolage Grotesque","Trebuchet MS",system-ui,sans-serif;
+  --font-body:"Instrument Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --bg:#121829;
+    --surface:#1A2238;
+    --ink:#E9EDF7;
+    --muted:#9AA6C2;
+    --line:#2C3656;
+    --tape:#F2C230;
+    --done:#58C497;
+    --danger:#F08A7A;
+    --focus:#8FA6FF;
+    color-scheme:dark;
+  }
+}
+*{box-sizing:border-box}
+html{scroll-padding-top:1rem}
+body{
+  margin:0;background:var(--bg);color:var(--ink);
+  font-family:var(--font-body);font-size:16px;line-height:1.5;
+}
+button,input{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.wrap{max-width:980px;margin:0 auto;padding:0 1rem 4rem}
+
+/* Cabeçalho */
+.hero{padding:2.5rem 0 1.25rem}
+.hero .title{
+  display:block;width:100%;border:0;background:transparent;padding:0;
+  font-family:var(--font-display);font-weight:800;font-size:clamp(2.2rem,7vw,4rem);
+  line-height:1.05;letter-spacing:-.02em;
+}
+.hero .subtitle{
+  display:block;width:100%;border:0;background:transparent;padding:0;margin-top:.35rem;
+  color:var(--muted);font-size:1.1rem;
+}
+.hero input{border-radius:6px}
+.hero input:hover{background:color-mix(in srgb,var(--surface) 70%,transparent)}
+
+/* Progresso: fita adesiva */
+.progress{margin:1.5rem 0 0}
+.tape{
+  position:relative;height:30px;border-radius:4px;background:var(--surface);
+  border:1px solid var(--line);overflow:hidden;
+}
+.tape .fill{
+  height:100%;width:0;background:var(--tape);
+  background-image:repeating-linear-gradient(115deg,transparent 0 14px,rgba(0,0,0,.07) 14px 16px);
+  transition:width .45s cubic-bezier(.2,.8,.2,1);
+  clip-path:polygon(0 0,100% 0,calc(100% - 7px) 50%,100% 100%,0 100%);
+}
+.tape .pct{
+  position:absolute;inset:0;display:flex;align-items:center;padding-left:.8rem;
+  font-family:var(--font-display);font-weight:700;font-size:.95rem;color:var(--tape-ink);
+  mix-blend-mode:normal;
+}
+.stats{display:flex;flex-wrap:wrap;gap:.5rem 2rem;margin-top:.9rem;color:var(--muted);font-size:.95rem}
+.stats b{color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums}
+
+/* Barra de ferramentas */
+.toolbar{
+  position:sticky;top:0;z-index:5;background:var(--bg);
+  display:flex;flex-wrap:wrap;gap:.6rem;align-items:center;
+  padding:.8rem 0;border-bottom:1px solid var(--line);margin-top:1.25rem;
+}
+.search{
+  flex:1 1 200px;min-width:0;padding:.55rem .8rem;border:1px solid var(--line);
+  border-radius:var(--radius);background:var(--surface);
+}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;background:var(--surface)}
+.seg button{border:0;background:transparent;padding:.55rem .9rem;cursor:pointer;color:var(--muted)}
+.seg button+button{border-left:1px solid var(--line)}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg);font-weight:600}
+.btn{
+  border:1px solid var(--line);background:var(--surface);border-radius:var(--radius);
+  padding:.55rem .85rem;cursor:pointer;
+}
+.btn:hover{border-color:var(--muted)}
+.btn.primary{background:var(--tape);border-color:var(--tape);color:var(--tape-ink);font-weight:600}
+.btn.danger{color:var(--danger)}
+.menu{display:flex;gap:.4rem;flex-wrap:wrap}
+
+/* Categorias */
+.cat{margin-top:2.25rem}
+.cat-head{
+  display:flex;align-items:center;gap:.75rem;padding-bottom:.5rem;
+  border-bottom:2px solid var(--ink);
+}
+.cat-name{
+  flex:1;min-width:0;border:0;background:transparent;padding:.1rem .25rem;margin-left:-.25rem;
+  font-family:var(--font-display);font-weight:700;font-size:1.45rem;letter-spacing:-.01em;border-radius:6px;
+}
+.cat-name:hover{background:color-mix(in srgb,var(--surface) 80%,transparent)}
+.cat-count{color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+.cat-count.complete{color:var(--done);font-weight:600}
+.icon-btn{
+  border:0;background:transparent;cursor:pointer;color:var(--muted);
+  width:2.2rem;height:2.2rem;border-radius:8px;font-size:1.25rem;line-height:1;
+}
+.icon-btn:hover{background:var(--surface);color:var(--danger)}
+
+/* Linhas */
+.items{list-style:none;margin:0;padding:0}
+.row{
+  display:grid;align-items:center;gap:.5rem .6rem;
+  grid-template-columns:auto 4.2rem minmax(0,2.2fr) 8rem minmax(0,1.6fr) auto;
+  padding:.55rem .25rem;border-bottom:1px solid var(--line);
+}
+.row input[type="text"],.row input[type="number"]{
+  width:100%;min-width:0;border:1px solid transparent;background:transparent;
+  padding:.4rem .5rem;border-radius:6px;
+}
+.row input[type="text"]:hover,.row input[type="number"]:hover{border-color:var(--line)}
+.row input:focus{background:var(--surface);border-color:var(--focus)}
+.row .qty{text-align:center;font-variant-numeric:tabular-nums}
+.row .note{color:var(--muted)}
+.row .note::placeholder,.row .price input::placeholder{color:color-mix(in srgb,var(--muted) 65%,transparent)}
+.price{display:flex;align-items:center;gap:.15rem;color:var(--muted)}
+.price input{text-align:right;font-variant-numeric:tabular-nums}
+
+/* Checkbox */
+.chk{
+  appearance:none;-webkit-appearance:none;width:1.6rem;height:1.6rem;margin:0;cursor:pointer;
+  border:2px solid var(--muted);border-radius:6px;background:var(--surface);display:grid;place-content:center;
+  transition:background .15s,border-color .15s;
+}
+.chk::after{
+  content:"";width:.8rem;height:.45rem;border:solid #fff;border-width:0 0 3px 3px;
+  transform:rotate(-45deg) scale(0);transition:transform .15s;margin-top:-.15rem;
+}
+.chk:checked{background:var(--done);border-color:var(--done)}
+.chk:checked::after{transform:rotate(-45deg) scale(1)}
+.row.done .name{text-decoration:line-through;color:var(--muted)}
+.row.done .qty,.row.done .price input{color:var(--muted)}
+
+.add-item{
+  margin-top:.6rem;border:1px dashed var(--muted);background:transparent;color:var(--muted);
+  border-radius:var(--radius);padding:.5rem .9rem;cursor:pointer;
+}
+.add-item:hover{color:var(--ink);border-color:var(--ink)}
+.empty{padding:1rem .25rem;color:var(--muted)}
+
+/* Nova categoria */
+.new-cat{
+  display:flex;gap:.6rem;flex-wrap:wrap;margin-top:3rem;padding-top:1.5rem;border-top:1px solid var(--line);
+}
+.new-cat input{flex:1 1 220px;padding:.55rem .8rem;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface)}
+.foot{margin-top:2.5rem;color:var(--muted);font-size:.9rem}
+
+.toast{
+  position:fixed;left:50%;bottom:1.25rem;transform:translate(-50%,2rem);opacity:0;pointer-events:none;
+  background:var(--ink);color:var(--bg);padding:.6rem 1rem;border-radius:var(--radius);
+  transition:all .25s;z-index:20;
+}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+
+/* Mobile: item em duas linhas */
+@media (max-width:720px){
+  .row{
+    grid-template-columns:auto 3.6rem minmax(0,1fr) auto;
+    grid-template-areas:"chk qty name del" ". price note note";
+    padding:.7rem .1rem;
+  }
+  .row .chk{grid-area:chk}
+  .row .qty{grid-area:qty}
+  .row .name{grid-area:name}
+  .row .price{grid-area:price}
+  .row .note{grid-area:note}
+  .row .del{grid-area:del}
+}
+
+@media (prefers-reduced-motion:reduce){
+  *{transition:none!important}
+}
+
+@media print{
+  body{background:#fff;color:#000}
+  .toolbar,.add-item,.new-cat,.del,.icon-btn,.foot,.toast{display:none!important}
+  .row input,.cat-name,.hero input{border:0!important;background:transparent!important}
+  .row{break-inside:avoid}
+  .cat{break-inside:auto}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="hero">
+    <input class="title" id="title" aria-label="Título da lista" spellcheck="false">
+    <input class="subtitle" id="subtitle" aria-label="Subtítulo da lista" spellcheck="false">
+
+    <div class="progress" aria-live="polite">
+      <div class="tape" role="progressbar" aria-valuemin="0" aria-valuemax="100" id="bar">
+        <div class="fill" id="fill"></div>
+        <div class="pct" id="pct"></div>
+      </div>
+      <div class="stats">
+        <span><b id="stDone">0</b> de <b id="stTotal">0</b> itens resolvidos</span>
+        <span>Estimado: <b id="stEst">R$ 0,00</b></span>
+        <span>Já comprado: <b id="stSpent">R$ 0,00</b></span>
+        <span>Falta: <b id="stLeft">R$ 0,00</b></span>
+      </div>
+    </div>
+  </header>
+
+  <div class="toolbar">
+    <input class="search" id="search" type="search" placeholder="Buscar item ou observação" aria-label="Buscar">
+    <div class="seg" role="group" aria-label="Filtrar itens" id="filters">
+      <button type="button" data-f="all" aria-pressed="true">Todos</button>
+      <button type="button" data-f="pending" aria-pressed="false">Pendentes</button>
+      <button type="button" data-f="done" aria-pressed="false">Comprados</button>
+    </div>
+    <div class="menu">
+      <button class="btn" id="btnExport" type="button">Exportar</button>
+      <button class="btn" id="btnImport" type="button">Importar</button>
+      <button class="btn" id="btnPrint" type="button">Imprimir</button>
+      <button class="btn danger" id="btnReset" type="button">Restaurar original</button>
+    </div>
+    <input type="file" id="file" accept="application/json,.json" hidden>
+  </div>
+
+  <main id="list"></main>
+
+  <form class="new-cat" id="newCat" autocomplete="off">
+    <input id="newCatName" type="text" placeholder="Nome de uma nova categoria (ex.: Varanda)" aria-label="Nome da nova categoria">
+    <button class="btn primary" type="submit">Adicionar categoria</button>
+  </form>
+
+  <p class="foot">As alterações ficam salvas neste navegador. Para levar a lista para outro aparelho ou compartilhar com seu par, use Exportar e Importar.</p>
+</div>
+
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+(function(){
+"use strict";
+
+const STORAGE_KEY = "lista-essenciais-moradia-v1";
+
+/* ---------- Lista original (da planilha) ---------- */
+function defaultState(){
+  const raw = [
+    ["Quarto principal", [
+      [1,"Cama de casal ou queen (com colchão)"],
+      [1,"Guarda-roupa"],
+      [1,"Cortina com blackout"],
+      [2,"Jogos de cama completos"],
+      [2,"Travesseiros"]
+    ]],
+    ["Cozinha e lavanderia", [
+      [1,"Geladeira"],
+      [1,"Fogão ou cooktop + forno"],
+      [1,"Máquina de lavar roupas"],
+      [1,"Jogo de panelas básico"],
+      [1,"Aparelho de jantar (pratos para 4 pessoas)"],
+      [1,"Faqueiro (conjunto de talheres)"],
+      [1,"Kit básico de copos e xícaras"],
+      [2,"Lixeiras (1 para pia, 1 para área)"]
+    ]],
+    ["Sala de estar e jantar", [
+      [1,"Sofá (2 a 3 lugares)"],
+      [1,"Rack ou painel de TV"],
+      [1,"Mesa de jantar"],
+      [4,"Cadeiras para mesa de jantar"]
+    ]],
+    ["Banheiro", [
+      [1,"Chuveiro elétrico (ou ducha/aquecedor)"],
+      [1,"Box para chuveiro"],
+      [1,"Gabinete com pia e espelho"],
+      [1,"Lixeira com pedal"],
+      [2,"Jogos de toalhas (banho e rosto)"]
+    ]],
+    ["Geral e limpeza", [
+      [8,"Lâmpadas LED (para todos os cômodos)"],
+      [1,"Roteador Wi-Fi"],
+      [1,"Vassoura"],
+      [1,"Rodo"],
+      [1,"Balde"],
+      [1,"Varal de roupas (chão ou teto)"]
+    ]]
+  ];
+  return {
+    title:"Nossa casa",
+    subtitle:"Lista de essenciais para morar a dois",
+    categories: raw.map(([name,items])=>({
+      id:uid(), name,
+      items: items.map(([qty,n])=>({id:uid(), qty, name:n, price:null, note:"", done:false}))
+    }))
+  };
+}
+
+/* ---------- Estado ---------- */
+let state = load() || defaultState();
+let filter = "all";
+let query = "";
+
+function uid(){ return Math.random().toString(36).slice(2,10) + Date.now().toString(36).slice(-4); }
+
+function load(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(!raw) return null;
+    return sanitize(JSON.parse(raw));
+  }catch(e){ return null; }
+}
+function save(){
+  try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+  catch(e){ toast("Não foi possível salvar neste navegador. Use Exportar para guardar uma cópia."); }
+}
+function sanitize(d){
+  if(!d || !Array.isArray(d.categories)) throw new Error("formato inválido");
+  return {
+    title: String(d.title ?? "Nossa casa"),
+    subtitle: String(d.subtitle ?? ""),
+    categories: d.categories.map(c=>({
+      id: c.id || uid(),
+      name: String(c.name ?? "Sem nome"),
+      items: (Array.isArray(c.items)?c.items:[]).map(i=>({
+        id: i.id || uid(),
+        qty: Math.max(0, Number(i.qty)||0),
+        name: String(i.name ?? ""),
+        price: (i.price===null || i.price==="" || isNaN(Number(i.price))) ? null : Number(i.price),
+        note: String(i.note ?? ""),
+        done: !!i.done
+      }))
+    }))
+  };
+}
+
+/* ---------- Utilidades ---------- */
+const $ = s => document.querySelector(s);
+const brl = n => n.toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
+const esc = s => String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const norm = s => String(s).normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
+
+let toastTimer;
+function toast(msg){
+  const t = $("#toast"); t.textContent = msg; t.classList.add("show");
+  clearTimeout(toastTimer); toastTimer = setTimeout(()=>t.classList.remove("show"),2600);
+}
+
+function findCat(id){ return state.categories.find(c=>c.id===id); }
+function findItem(cat,id){ return cat.items.find(i=>i.id===id); }
+
+/* ---------- Renderização ---------- */
+function visible(item){
+  if(filter==="pending" && item.done) return false;
+  if(filter==="done" && !item.done) return false;
+  if(query){
+    const q = norm(query);
+    if(!norm(item.name).includes(q) && !norm(item.note).includes(q)) return false;
+  }
+  return true;
+}
+
+function rowHTML(it){
+  return `
+  <li class="row ${it.done?"done":""}" data-item="${it.id}">
+    <input class="chk" type="checkbox" ${it.done?"checked":""} aria-label="Marcar como comprado">
+    <input class="qty" type="number" min="0" step="1" value="${it.qty}" aria-label="Quantidade">
+    <input class="name" type="text" value="${esc(it.name)}" placeholder="Nome do item" aria-label="Item">
+    <label class="price">R$<input type="number" min="0" step="0.01" inputmode="decimal" value="${it.price===null?"":it.price}" placeholder="0,00" aria-label="Valor unitário em reais"></label>
+    <input class="note" type="text" value="${esc(it.note)}" placeholder="Observações" aria-label="Observações">
+    <button class="icon-btn del" type="button" title="Remover item" aria-label="Remover item">×</button>
+  </li>`;
+}
+
+function render(focusSel){
+  const root = $("#list");
+  const filtering = filter!=="all" || query;
+  root.innerHTML = state.categories.map(cat=>{
+    const shown = cat.items.filter(visible);
+    const done = cat.items.filter(i=>i.done).length;
+    const complete = cat.items.length>0 && done===cat.items.length;
+    let body;
+    if(shown.length){
+      body = `<ul class="items">${shown.map(rowHTML).join("")}</ul>`;
+    }else if(cat.items.length && filtering){
+      body = `<p class="empty">Nenhum item aqui com esse filtro.</p>`;
+    }else{
+      body = `<p class="empty">Categoria vazia. Adicione o primeiro item.</p>`;
+    }
+    return `
+    <section class="cat" data-cat="${cat.id}">
+      <div class="cat-head">
+        <input class="cat-name" type="text" value="${esc(cat.name)}" aria-label="Nome da categoria">
+        <span class="cat-count ${complete?"complete":""}">${done}/${cat.items.length}</span>
+        <button class="icon-btn del-cat" type="button" title="Remover categoria" aria-label="Remover categoria">×</button>
+      </div>
+      ${body}
+      <button class="add-item" type="button">+ Adicionar item</button>
+    </section>`;
+  }).join("");
+
+  if(!state.categories.length){
+    root.innerHTML = `<p class="empty">Nenhuma categoria ainda. Crie a primeira abaixo.</p>`;
+  }
+  if(focusSel){ const el = root.querySelector(focusSel); if(el) el.focus(); }
+  summary();
+}
+
+function summary(){
+  let total=0, done=0, est=0, spent=0;
+  state.categories.forEach(c=>c.items.forEach(i=>{
+    total++; if(i.done) done++;
+    const v = (i.price||0) * i.qty;
+    est += v; if(i.done) spent += v;
+  }));
+  const pct = total ? Math.round(done/total*100) : 0;
+  $("#stDone").textContent = done;
+  $("#stTotal").textContent = total;
+  $("#stEst").textContent = brl(est);
+  $("#stSpent").textContent = brl(spent);
+  $("#stLeft").textContent = brl(est-spent);
+  $("#fill").style.width = pct + "%";
+  $("#pct").textContent = pct + "%";
+  $("#bar").setAttribute("aria-valuenow", pct);
+}
+
+/* ---------- Eventos: lista ---------- */
+const list = $("#list");
+
+list.addEventListener("input", e=>{
+  const t = e.target;
+  const catEl = t.closest("[data-cat]"); if(!catEl) return;
+  const cat = findCat(catEl.dataset.cat);
+
+  if(t.classList.contains("cat-name")){
+    cat.name = t.value;
+  }else{
+    const rowEl = t.closest("[data-item]"); if(!rowEl) return;
+    const it = findItem(cat,rowEl.dataset.item);
+    if(t.classList.contains("qty")) it.qty = Math.max(0, parseInt(t.value,10)||0);
+    else if(t.classList.contains("name")) it.name = t.value;
+    else if(t.classList.contains("note")) it.note = t.value;
+    else if(t.closest(".price")) it.price = t.value==="" ? null : Math.max(0, parseFloat(t.value)||0);
+  }
+  save(); summary();
+});
+
+list.addEventListener("change", e=>{
+  const t = e.target;
+  if(!t.classList.contains("chk")) return;
+  const catEl = t.closest("[data-cat]");
+  const rowEl = t.closest("[data-item]");
+  const cat = findCat(catEl.dataset.cat);
+  const it = findItem(cat,rowEl.dataset.item);
+  it.done = t.checked;
+  save();
+  render(`[data-item="${it.id}"] .chk`);
+});
+
+list.addEventListener("click", e=>{
+  const catEl = e.target.closest("[data-cat]"); if(!catEl) return;
+  const cat = findCat(catEl.dataset.cat);
+
+  if(e.target.closest(".add-item")){
+    const it = {id:uid(), qty:1, name:"", price:null, note:"", done:false};
+    cat.items.push(it);
+    // garante que o novo item apareça mesmo com filtro ativo
+    if(filter==="done") filter="all", syncFilters();
+    if(query){ query=""; $("#search").value=""; }
+    save(); render(`[data-item="${it.id}"] .name`);
+    return;
+  }
+  if(e.target.closest(".del")){
+    const rowEl = e.target.closest("[data-item]");
+    const idx = cat.items.findIndex(i=>i.id===rowEl.dataset.item);
+    const [removed] = cat.items.splice(idx,1);
+    save(); render();
+    toastUndo(`"${removed.name||"Item"}" removido`, ()=>{
+      cat.items.splice(idx,0,removed); save(); render();
+    });
+    return;
+  }
+  if(e.target.closest(".del-cat")){
+    const n = cat.items.length;
+    if(n && !confirm(`Remover a categoria "${cat.name}" e seus ${n} itens?`)) return;
+    const idx = state.categories.indexOf(cat);
+    state.categories.splice(idx,1);
+    save(); render();
+    toastUndo(`Categoria "${cat.name}" removida`, ()=>{
+      state.categories.splice(idx,0,cat); save(); render();
+    });
+  }
+});
+
+/* Desfazer */
+function toastUndo(msg, undo){
+  const t = $("#toast");
+  t.innerHTML = `${esc(msg)} <button type="button" id="undo" style="margin-left:.6rem;border:0;background:transparent;color:var(--tape);font-weight:600;cursor:pointer;text-decoration:underline">Desfazer</button>`;
+  t.style.pointerEvents = "auto";
+  t.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(hideToast,5000);
+  $("#undo").addEventListener("click",()=>{ undo(); hideToast(); });
+}
+function hideToast(){ const t=$("#toast"); t.classList.remove("show"); t.style.pointerEvents="none"; }
+
+/* ---------- Título / subtítulo ---------- */
+const titleEl = $("#title"), subEl = $("#subtitle");
+titleEl.value = state.title; subEl.value = state.subtitle;
+titleEl.addEventListener("input",()=>{ state.title = titleEl.value; document.title = (state.title||"Lista")+" — lista de essenciais"; save(); });
+subEl.addEventListener("input",()=>{ state.subtitle = subEl.value; save(); });
+document.title = (state.title||"Lista")+" — lista de essenciais";
+
+/* ---------- Filtros e busca ---------- */
+function syncFilters(){
+  document.querySelectorAll("#filters button").forEach(b=>b.setAttribute("aria-pressed", b.dataset.f===filter));
+}
+$("#filters").addEventListener("click", e=>{
+  const b = e.target.closest("button"); if(!b) return;
+  filter = b.dataset.f; syncFilters(); render();
+});
+$("#search").addEventListener("input", e=>{ query = e.target.value.trim(); render(); });
+
+/* ---------- Nova categoria ---------- */
+$("#newCat").addEventListener("submit", e=>{
+  e.preventDefault();
+  const input = $("#newCatName"); const name = input.value.trim();
+  if(!name) { input.focus(); return; }
+  const cat = {id:uid(), name, items:[]};
+  state.categories.push(cat);
+  input.value = ""; save(); render();
+  const el = document.querySelector(`[data-cat="${cat.id}"]`);
+  if(el) el.scrollIntoView({behavior:"smooth",block:"center"});
+});
+
+/* ---------- Exportar / importar / imprimir / restaurar ---------- */
+$("#btnExport").addEventListener("click", ()=>{
+  const blob = new Blob([JSON.stringify(state,null,2)],{type:"application/json"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "lista-essenciais.json";
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+  toast("Arquivo exportado.");
+});
+$("#btnImport").addEventListener("click", ()=>$("#file").click());
+$("#file").addEventListener("change", e=>{
+  const f = e.target.files[0]; if(!f) return;
+  const r = new FileReader();
+  r.onload = ()=>{
+    try{
+      const next = sanitize(JSON.parse(r.result));
+      if(!confirm("Importar vai substituir a lista atual. Continuar?")) return;
+      state = next; titleEl.value = state.title; subEl.value = state.subtitle;
+      save(); render(); toast("Lista importada.");
+    }catch(err){
+      toast("Arquivo inválido. Escolha um .json exportado por esta página.");
+    }
+  };
+  r.readAsText(f); e.target.value = "";
+});
+$("#btnPrint").addEventListener("click", ()=>window.print());
+$("#btnReset").addEventListener("click", ()=>{
+  if(!confirm("Restaurar a lista original? Suas alterações serão perdidas.")) return;
+  state = defaultState(); titleEl.value = state.title; subEl.value = state.subtitle;
+  filter="all"; query=""; $("#search").value=""; syncFilters();
+  save(); render(); toast("Lista original restaurada.");
+});
+
+render();
+})();
+</script>
+</body>
+</html>
